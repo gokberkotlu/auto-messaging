@@ -1,0 +1,32 @@
+version: "3.8"
+
+services:
+  postgres:
+    image: postgres:16.4-alpine
+    container_name: auto_messaging_postgres
+    environment:
+      POSTGRES_USER: ${POSTGRES_USER}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
+      POSTGRES_DB: ${POSTGRES_DB}
+    ports:
+      - "${POSTGRES_PORT}:5432"
+    volumes:
+      - auto_messaging_postgres_data:/var/lib/postgresql/data
+    networks:
+      - auto_messaging_network
+
+  redis:
+    image: redis:7.4-alpine
+    container_name: auto_messaging_redis
+    environment:
+      REDIS_PASSWORD: ${REDIS_PASSWORD}
+    ports:
+      - "${REDIS_PORT}:6379"
+    networks:
+      - auto_messaging_network
+
+networks:
+  auto_messaging_network:
+
+volumes:
+  auto_messaging_postgres_data:
