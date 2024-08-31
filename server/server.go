@@ -1,6 +1,6 @@
 package server
 
 func Init() {
-	r := NetRouter()
+	r := NewRouter()
 	r.Run()
 }

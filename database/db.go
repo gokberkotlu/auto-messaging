@@ -45,13 +45,6 @@ func GetDB() (*gorm.DB, error) {
 }
 
 func newDBConn() (*Database, error) {
-	// dbConfig := dbConfig{
-	// 	host:     "localhost",
-	// 	user:     "postgres",
-	// 	password: "postgres",
-	// 	dbname:   "messagedb",
-	// 	port:     9920,
-	// }
 	intPortValue, _ := strconv.Atoi(os.Getenv("POSTGRES_PORT"))
 	dbConfig := dbConfig{
 		host:     "localhost",

@@ -1,6 +1,7 @@
 package main
 
 import (
+	"fmt"
 	"log"
 
 	"github.com/gokberkotlu/auto-messaging/migration"
@@ -8,7 +9,8 @@ import (
 	"github.com/joho/godotenv"
 )
 
-func main() { // Load .env file
+func main() {
+	fmt.Println("starting app...")
 	err := godotenv.Load()
 	if err != nil {
 		log.Fatal("Error loading .env file")

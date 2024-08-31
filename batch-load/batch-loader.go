@@ -45,5 +45,5 @@ func ReadCSV() {
 	}
 
 	var messageRepository repository.IMessageRepository = repository.NewMessageRepository()
-	messageRepository.BulkLoad(messages)
+	messageRepository.BatchLoad(messages)
 }

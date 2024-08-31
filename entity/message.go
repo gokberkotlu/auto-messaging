@@ -5,6 +5,12 @@ import (
 )
 
 type StatusType uint8
+
+const (
+	Active StatusType = 0
+	Sent   StatusType = 1
+)
+
 type Message struct {
 	ID        uint64     `json:"id" gorm:"primaryKey"`
 	To        string     `json: "to" gorm:"size:20;not null"`

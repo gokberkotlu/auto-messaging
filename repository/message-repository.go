@@ -2,6 +2,7 @@ package repository
 
 import (
 	"fmt"
+	"log"
 
 	"github.com/gokberkotlu/auto-messaging/database"
 	"github.com/gokberkotlu/auto-messaging/entity"
@@ -13,7 +14,9 @@ type MessageRepository struct {
 }
 
 type IMessageRepository interface {
-	BulkLoad(messages []entity.Message)
+	BatchLoad(messages []entity.Message)
+	GetNextTwoUnsentMessages() []entity.Message
+	GetSentMessages() []entity.Message
 	Save()
 	Update()
 }
@@ -28,7 +31,7 @@ func NewMessageRepository() IMessageRepository {
 	}
 }
 
-func (repository *MessageRepository) BulkLoad(messages []entity.Message) {
+func (repository *MessageRepository) BatchLoad(messages []entity.Message) {
 	result := repository.db.Create(&messages)
 	if result.Error != nil {
 		fmt.Println("Error inserting batch data:", result.Error)
@@ -36,5 +39,26 @@ func (repository *MessageRepository) BulkLoad(messages []entity.Message) {
 		fmt.Printf("Inserted %d rows successfully.\n", result.RowsAffected)
 	}
 }
-func (repository *MessageRepository) Save()   {}
+func (repository *MessageRepository) GetNextTwoUnsentMessages() []entity.Message {
+	var messages []entity.Message
+
+	if err := repository.db.Where("status = ?", entity.Active).Order("id").Limit(2).Find(&messages).Error; err != nil {
+		log.Fatalf(`"get next to unsent messages" query failed: %v`, err)
+	}
+
+	return messages
+}
+
+func (repository *MessageRepository) GetSentMessages() []entity.Message {
+	var messages []entity.Message
+
+	if err := repository.db.Where("status = ?", entity.Sent).Find(&messages).Error; err != nil {
+		log.Fatalf(`"get sent messages" query failed: %v`, err)
+	}
+
+	return messages
+}
+
+func (repository *MessageRepository) Save() {}
+
 func (repository *MessageRepository) Update() {}
