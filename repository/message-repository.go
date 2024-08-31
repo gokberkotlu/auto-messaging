@@ -17,6 +17,7 @@ type IMessageRepository interface {
 	BatchLoad(messages []entity.Message)
 	GetNextTwoUnsentMessages() []entity.Message
 	GetSentMessages() []entity.Message
+	UpdateMessageStatusAsSent(message entity.Message)
 	Save()
 	Update()
 }
@@ -57,6 +58,10 @@ func (repository *MessageRepository) GetSentMessages() []entity.Message {
 	}
 
 	return messages
+}
+
+func (repository *MessageRepository) UpdateMessageStatusAsSent(message entity.Message) {
+	repository.db.Model(&message).Update("status", entity.Sent)
 }
 
 func (repository *MessageRepository) Save() {}

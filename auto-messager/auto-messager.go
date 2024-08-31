@@ -1,34 +1,71 @@
 package automessager
 
-import "time"
+import (
+	"fmt"
+	"sync"
+	"time"
+)
 
 type IAutoMessager interface {
 	Start()
 	Stop()
+	RecreateTicker()
+	GetMode() bool
 }
 
 type AutoMessager struct {
-	ticker *time.Ticker
-	quitCh chan struct{}
+	Ticker *time.Ticker
+	QuitCh chan struct{}
+	Mode   bool
 }
 
-const messagingTimeInterval = 2 * time.Minute
+var (
+	AutoMessagerInstance IAutoMessager
+	lock                 = &sync.Mutex{}
+)
 
-func New() IAutoMessager {
-	return &AutoMessager{
-		ticker: time.NewTicker(messagingTimeInterval),
-		quitCh: make(chan struct{}),
+const messagingTimeInterval = 2 * time.Second
+
+func GetAutoMessager() IAutoMessager {
+	if AutoMessagerInstance == nil {
+		lock.Lock()
+		defer lock.Unlock()
+		if AutoMessagerInstance == nil {
+			AutoMessagerInstance = newAutoMessager()
+		}
 	}
+
+	return AutoMessagerInstance
+}
+
+func newAutoMessager() *AutoMessager {
+	return &AutoMessager{
+		Ticker: getTicker(),
+		QuitCh: make(chan struct{}),
+		Mode:   true,
+	}
+}
+
+func (autoMessager *AutoMessager) RecreateTicker() {
+	lock.Lock()
+	defer lock.Unlock()
+	autoMessager.Ticker = getTicker()
+}
+
+func getTicker() *time.Ticker {
+	return time.NewTicker(messagingTimeInterval)
 }
 
 func (autoMessager *AutoMessager) Start() {
 	go func() {
+		autoMessager.Mode = true
 		for {
 			select {
-			case <-autoMessager.ticker.C:
-				// do stuff
-			case <-autoMessager.quitCh:
-				autoMessager.ticker.Stop()
+			case <-autoMessager.Ticker.C:
+				fmt.Println(time.Now().Format(time.RFC1123))
+			case <-autoMessager.QuitCh:
+				autoMessager.Ticker.Stop()
+				autoMessager.Mode = false
 				return
 			}
 		}
@@ -36,5 +73,14 @@ func (autoMessager *AutoMessager) Start() {
 }
 
 func (autoMessager *AutoMessager) Stop() {
-	autoMessager.quitCh <- struct{}{}
+	autoMessager.QuitCh <- struct{}{}
+}
+
+func Init() {
+	autoMessagerInstance := GetAutoMessager()
+	autoMessagerInstance.Start()
+}
+
+func (autoMessager *AutoMessager) GetMode() bool {
+	return autoMessager.Mode
 }

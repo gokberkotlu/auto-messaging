@@ -7,7 +7,7 @@ import (
 )
 
 type IMessageController interface {
-	SwitchAutoMessagingStatus(ctx *gin.Context)
+	SwitchAutoMessagingMode(ctx *gin.Context)
 	GetSentMessages() []entity.Message
 }
 
@@ -21,7 +21,9 @@ func NewMessageController() IMessageController {
 	}
 }
 
-func (controller *messageController) SwitchAutoMessagingStatus(ctx *gin.Context) {}
+func (controller *messageController) SwitchAutoMessagingMode(ctx *gin.Context) {
+	controller.service.SwitchAutoMessagingMode(ctx)
+}
 
 func (controller *messageController) GetSentMessages() []entity.Message {
 	return controller.service.GetSentMessages()

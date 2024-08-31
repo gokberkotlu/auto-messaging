@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"log"
 
+	automessager "github.com/gokberkotlu/auto-messaging/auto-messager"
 	"github.com/gokberkotlu/auto-messaging/migration"
 	"github.com/gokberkotlu/auto-messaging/server"
 	"github.com/joho/godotenv"
@@ -17,5 +18,7 @@ func main() {
 	}
 	migration.AutoMigrate()
 	// batchload.ReadCSV()
+	automessager.Init()
+
 	server.Init()
 }
