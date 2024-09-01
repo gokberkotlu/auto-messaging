@@ -43,8 +43,14 @@ const docTemplate = `{
                         "schema": {
                             "type": "array",
                             "items": {
-                                "$ref": "#/definitions/entity.Message"
+                                "$ref": "#/definitions/dto.SuccessResponse-entity_Message"
                             }
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/dto.ErrorResponseDTO"
                         }
                     }
                 }
@@ -78,8 +84,14 @@ const docTemplate = `{
                         "schema": {
                             "type": "array",
                             "items": {
-                                "$ref": "#/definitions/dto.SwitchResDTO"
+                                "$ref": "#/definitions/dto.SuccessResponse-any"
                             }
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/dto.ErrorResponseDTO"
                         }
                     }
                 }
@@ -87,11 +99,46 @@ const docTemplate = `{
         }
     },
     "definitions": {
-        "dto.SwitchResDTO": {
+        "dto.ErrorResponseDTO": {
             "type": "object",
             "properties": {
+                "error": {
+                    "type": "string"
+                },
+                "status": {
+                    "type": "integer"
+                }
+            }
+        },
+        "dto.SuccessResponse-any": {
+            "type": "object",
+            "properties": {
+                "data": {
+                    "type": "array",
+                    "items": {}
+                },
                 "message": {
                     "type": "string"
+                },
+                "status": {
+                    "type": "integer"
+                }
+            }
+        },
+        "dto.SuccessResponse-entity_Message": {
+            "type": "object",
+            "properties": {
+                "data": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/entity.Message"
+                    }
+                },
+                "message": {
+                    "type": "string"
+                },
+                "status": {
+                    "type": "integer"
                 }
             }
         },
@@ -101,7 +148,7 @@ const docTemplate = `{
                 "content": {
                     "type": "string"
                 },
-                "createdAt": {
+                "created_at": {
                     "type": "string"
                 },
                 "id": {
@@ -113,7 +160,7 @@ const docTemplate = `{
                 "to": {
                     "type": "string"
                 },
-                "updatedAt": {
+                "updated_at": {
                     "type": "string"
                 }
             }

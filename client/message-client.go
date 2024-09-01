@@ -13,7 +13,7 @@ import (
 )
 
 type IMessageClient interface {
-	SendNextTwoUnsentMessages()
+	SendNextTwoUnsentMessages() error
 	sendMessageByExternalAPI(messageDTO dto.MessageDTO) error
 }
 
@@ -63,19 +63,32 @@ func (c *MessageClient) sendMessageByExternalAPI(messageDTO dto.MessageDTO) erro
 	return nil
 }
 
-func (c *MessageClient) SendNextTwoUnsentMessages() {
-	messages := c.messageService.GetNextTwoUnsentMessages()
+func (c *MessageClient) SendNextTwoUnsentMessages() error {
+	messages, err := c.messageService.GetNextTwoUnsentMessages()
+
+	if err != nil {
+		fmt.Println(err)
+		return err
+	}
 
 	if messages != nil && len(messages) > 0 {
 		for _, message := range messages {
 			fmt.Println(message.ID)
-			err := c.sendMessageByExternalAPI(dto.ToMessageDTO(message))
+			err = c.sendMessageByExternalAPI(dto.ToMessageDTO(message))
 			if err != nil {
 				fmt.Println(err)
-				return
+				return err
 			}
 
-			c.messageService.UpdateMessageStatusAsSent(message)
+			err = c.messageService.UpdateMessageStatusAsSent(message)
+			if err != nil {
+				fmt.Println(err)
+				return err
+			}
 		}
+	} else {
+		return fmt.Errorf("there are no next messages")
 	}
+
+	return nil
 }

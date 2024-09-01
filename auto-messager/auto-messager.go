@@ -91,8 +91,9 @@ func (autoMessager *AutoMessager) Switch(messageService service.IMessageService,
 	activeParam := ctx.Param("active")
 	boolActiveParam, err := strconv.ParseBool(activeParam)
 	if err != nil {
-		ctx.JSON(http.StatusBadRequest, gin.H{
-			"error": "Invalid mode value. Use 'true' or 'false'.",
+		ctx.JSON(http.StatusBadRequest, dto.ErrorResponseDTO{
+			Status: http.StatusBadRequest,
+			Error:  "Invalid mode value. Use 'true' or 'false'.",
 		})
 		return
 	}
@@ -110,15 +111,17 @@ func (autoMessager *AutoMessager) Switch(messageService service.IMessageService,
 			action = "disabled"
 		}
 
-		res := dto.SwitchResDTO{
+		ctx.JSON(http.StatusOK, dto.SuccessResponse[any]{
+			Status:  http.StatusOK,
+			Data:    []any{},
 			Message: fmt.Sprintf("auto messager %s", action),
-		}
-		ctx.JSON(http.StatusOK, res)
+		})
 
 		return
 	} else {
-		ctx.JSON(http.StatusOK, gin.H{
-			"error": "mode not changed",
+		ctx.JSON(http.StatusBadRequest, dto.ErrorResponseDTO{
+			Status: http.StatusBadRequest,
+			Error:  "mode not changed",
 		})
 	}
 }

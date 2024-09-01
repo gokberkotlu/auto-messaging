@@ -3,8 +3,8 @@ package dto
 import "github.com/gokberkotlu/auto-messaging/entity"
 
 type MessageDTO struct {
-	To      string `json: "to"`
-	Content string `json: "content"`
+	To      string `json:"to"`
+	Content string `json:"content"`
 }
 
 func ToMessageDTO(message entity.Message) MessageDTO {

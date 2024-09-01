@@ -6,9 +6,9 @@ import (
 )
 
 type IMessageService interface {
-	GetNextTwoUnsentMessages() []entity.Message
-	GetSentMessages() []entity.Message
-	UpdateMessageStatusAsSent(message entity.Message)
+	GetNextTwoUnsentMessages() ([]entity.Message, error)
+	GetSentMessages() ([]entity.Message, error)
+	UpdateMessageStatusAsSent(message entity.Message) error
 }
 
 type messageService struct {
@@ -23,14 +23,14 @@ func NewMessageService() IMessageService {
 	}
 }
 
-func (service *messageService) GetNextTwoUnsentMessages() []entity.Message {
+func (service *messageService) GetNextTwoUnsentMessages() ([]entity.Message, error) {
 	return service.repository.GetNextTwoUnsentMessages()
 }
 
-func (service *messageService) GetSentMessages() []entity.Message {
+func (service *messageService) GetSentMessages() ([]entity.Message, error) {
 	return service.repository.GetSentMessages()
 }
 
-func (service *messageService) UpdateMessageStatusAsSent(message entity.Message) {
-	service.repository.UpdateMessageStatusAsSent(message)
+func (service *messageService) UpdateMessageStatusAsSent(message entity.Message) error {
+	return service.repository.UpdateMessageStatusAsSent(message)
 }

@@ -5,6 +5,8 @@ import (
 
 	"github.com/gin-gonic/gin"
 	automessager "github.com/gokberkotlu/auto-messaging/auto-messager"
+	"github.com/gokberkotlu/auto-messaging/dto"
+	"github.com/gokberkotlu/auto-messaging/entity"
 	"github.com/gokberkotlu/auto-messaging/service"
 )
 
@@ -30,7 +32,8 @@ func NewMessageController() IMessageController {
 // @Accept       json
 // @Produce      json
 // @Param        active   path      bool  true  "Active Mode"
-// @Success      200  {array}   dto.SwitchResDTO
+// @Success      200  {array}   dto.SuccessResponse[any]
+// @Failure      400  {object}  dto.ErrorResponseDTO
 // @Router       /api/v1/message/switch-auto-messaging-mode/{active} [get]
 func (controller *messageController) SwitchAutoMessagingMode(ctx *gin.Context) {
 	automessager := automessager.GetAutoMessager()
@@ -43,8 +46,23 @@ func (controller *messageController) SwitchAutoMessagingMode(ctx *gin.Context) {
 // @Tags         messages
 // @Accept       json
 // @Produce      json
-// @Success      200  {array}   entity.Message
+// @Success      200  {array}   dto.SuccessResponse[entity.Message]
+// @Failure      500  {object}  dto.ErrorResponseDTO
 // @Router       /api/v1/message/get-sent-messages [get]
 func (controller *messageController) GetSentMessages(ctx *gin.Context) {
-	ctx.JSON(http.StatusOK, controller.service.GetSentMessages())
+	messages, err := controller.service.GetSentMessages()
+
+	if err != nil {
+		ctx.JSON(http.StatusInternalServerError, dto.ErrorResponseDTO{
+			Status: http.StatusInternalServerError,
+			Error:  err.Error(),
+		})
+		return
+	}
+
+	ctx.JSON(http.StatusOK, dto.SuccessResponse[entity.Message]{
+		Status:  http.StatusOK,
+		Data:    messages,
+		Message: "sent messages were successfully retrieved",
+	})
 }

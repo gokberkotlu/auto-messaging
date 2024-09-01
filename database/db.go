@@ -61,7 +61,7 @@ func newDBConn() (*Database, error) {
 	})
 
 	if err != nil {
-		return nil, fmt.Errorf("failed to connect to database: %w", err)
+		return nil, err
 	}
 
 	return &Database{
@@ -72,7 +72,7 @@ func newDBConn() (*Database, error) {
 func (db *Database) Close() error {
 	sqlDB, err := db.connection.DB()
 	if err != nil {
-		return fmt.Errorf("failed to get sqlDB: %w", err)
+		return err
 	}
 	return sqlDB.Close()
 }
