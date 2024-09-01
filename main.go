@@ -47,7 +47,6 @@ func main() {
 	// auto migration check
 	migration.AutoMigrate()
 
-	// batchload.ReadCSV()
 	automessager.Init()
 
 	server.Init()

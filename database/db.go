@@ -81,3 +81,11 @@ func (dbConfig *dbConfig) getDSN() string {
 	fmt.Printf("host=%s user=%s password=%s dbname=%s port=%d sslmode=disable\n", dbConfig.host, dbConfig.user, dbConfig.password, dbConfig.dbname, dbConfig.port)
 	return fmt.Sprintf("host=%s user=%s password=%s dbname=%s port=%d sslmode=disable", dbConfig.host, dbConfig.user, dbConfig.password, dbConfig.dbname, dbConfig.port)
 }
+
+func CheckIfDbConnectionInitialized() error {
+	if databaseInstance == nil {
+		return fmt.Errorf("database connection is not initialized")
+	}
+
+	return nil
+}

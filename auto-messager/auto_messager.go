@@ -33,7 +33,7 @@ var (
 	lock                 = &sync.Mutex{}
 )
 
-const messagingTimeInterval = 2 * time.Second
+const messagingTimeInterval = 2 * time.Minute
 
 func GetAutoMessager() IAutoMessager {
 	if AutoMessagerInstance == nil {

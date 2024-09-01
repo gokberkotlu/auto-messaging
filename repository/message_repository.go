@@ -3,21 +3,21 @@ package repository
 import (
 	"fmt"
 
+	batchload "github.com/gokberkotlu/auto-messaging/batch-load"
 	"github.com/gokberkotlu/auto-messaging/database"
 	"github.com/gokberkotlu/auto-messaging/entity"
 	"gorm.io/gorm"
 )
 
-type MessageRepository struct {
-	db *gorm.DB
-}
-
 type IMessageRepository interface {
-	BatchLoad(messages []entity.Message)
+	BatchLoad()
 	GetNextTwoUnsentMessages() ([]entity.Message, error)
 	GetSentMessages() ([]entity.Message, error)
 	UpdateMessageStatusAsSent(message entity.Message) error
-	checkIfDbConnectionExists() error
+}
+
+type MessageRepository struct {
+	db *gorm.DB
 }
 
 func NewMessageRepository() IMessageRepository {
@@ -30,10 +30,10 @@ func NewMessageRepository() IMessageRepository {
 	}
 }
 
-func (repository *MessageRepository) BatchLoad(messages []entity.Message) {
-	err := repository.checkIfDbConnectionExists()
+func (repository *MessageRepository) BatchLoad() {
+	messages := batchload.ReadCSV()
+	err := database.CheckIfDbConnectionInitialized()
 	if err != nil {
-		fmt.Printf(err.Error())
 		return
 	}
 
@@ -45,7 +45,7 @@ func (repository *MessageRepository) BatchLoad(messages []entity.Message) {
 	}
 }
 func (repository *MessageRepository) GetNextTwoUnsentMessages() ([]entity.Message, error) {
-	err := repository.checkIfDbConnectionExists()
+	err := database.CheckIfDbConnectionInitialized()
 	if err != nil {
 		return nil, err
 	}
@@ -60,7 +60,7 @@ func (repository *MessageRepository) GetNextTwoUnsentMessages() ([]entity.Messag
 }
 
 func (repository *MessageRepository) GetSentMessages() ([]entity.Message, error) {
-	err := repository.checkIfDbConnectionExists()
+	err := database.CheckIfDbConnectionInitialized()
 	if err != nil {
 		return nil, err
 	}
@@ -77,14 +77,6 @@ func (repository *MessageRepository) GetSentMessages() ([]entity.Message, error)
 func (repository *MessageRepository) UpdateMessageStatusAsSent(message entity.Message) error {
 	if err := repository.db.Model(&message).Update("status", entity.Sent).Error; err != nil {
 		return fmt.Errorf(`"update message status as sent" query failed: %s`, err.Error())
-	}
-
-	return nil
-}
-
-func (repository *MessageRepository) checkIfDbConnectionExists() error {
-	if repository == nil || (repository != nil && repository.db == nil) {
-		return fmt.Errorf("database connection is not initialized")
 	}
 
 	return nil
