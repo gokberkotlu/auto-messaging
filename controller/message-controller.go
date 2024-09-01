@@ -2,6 +2,7 @@ package controller
 
 import (
 	"github.com/gin-gonic/gin"
+	automessager "github.com/gokberkotlu/auto-messaging/auto-messager"
 	"github.com/gokberkotlu/auto-messaging/entity"
 	"github.com/gokberkotlu/auto-messaging/service"
 )
@@ -22,7 +23,8 @@ func NewMessageController() IMessageController {
 }
 
 func (controller *messageController) SwitchAutoMessagingMode(ctx *gin.Context) {
-	controller.service.SwitchAutoMessagingMode(ctx)
+	automessager := automessager.GetAutoMessager()
+	automessager.Switch(controller.service, ctx)
 }
 
 func (controller *messageController) GetSentMessages() []entity.Message {

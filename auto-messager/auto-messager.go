@@ -2,21 +2,29 @@ package automessager
 
 import (
 	"fmt"
+	"net/http"
+	"strconv"
 	"sync"
 	"time"
+
+	"github.com/gin-gonic/gin"
+	"github.com/gokberkotlu/auto-messaging/client"
+	"github.com/gokberkotlu/auto-messaging/service"
 )
 
 type IAutoMessager interface {
 	Start()
 	Stop()
+	Switch(messageService service.IMessageService, ctx *gin.Context)
 	RecreateTicker()
 	GetMode() bool
 }
 
 type AutoMessager struct {
-	Ticker *time.Ticker
-	QuitCh chan struct{}
-	Mode   bool
+	Ticker        *time.Ticker
+	QuitCh        chan struct{}
+	Mode          bool
+	messageClient client.IMessageClient
 }
 
 var (
@@ -40,9 +48,10 @@ func GetAutoMessager() IAutoMessager {
 
 func newAutoMessager() *AutoMessager {
 	return &AutoMessager{
-		Ticker: getTicker(),
-		QuitCh: make(chan struct{}),
-		Mode:   true,
+		Ticker:        getTicker(),
+		QuitCh:        make(chan struct{}),
+		Mode:          true,
+		messageClient: client.New(),
 	}
 }
 
@@ -63,6 +72,7 @@ func (autoMessager *AutoMessager) Start() {
 			select {
 			case <-autoMessager.Ticker.C:
 				fmt.Println(time.Now().Format(time.RFC1123))
+				autoMessager.messageClient.SendNextTwoUnsentMessages()
 			case <-autoMessager.QuitCh:
 				autoMessager.Ticker.Stop()
 				autoMessager.Mode = false
@@ -74,6 +84,41 @@ func (autoMessager *AutoMessager) Start() {
 
 func (autoMessager *AutoMessager) Stop() {
 	autoMessager.QuitCh <- struct{}{}
+}
+
+func (autoMessager *AutoMessager) Switch(messageService service.IMessageService, ctx *gin.Context) {
+	activeParam := ctx.Param("active")
+	boolActiveParam, err := strconv.ParseBool(activeParam)
+	if err != nil {
+		ctx.JSON(http.StatusBadRequest, gin.H{
+			"error": "Invalid mode value. Use 'true' or 'false'.",
+		})
+		return
+	}
+
+	autoMessagerInstance := GetAutoMessager()
+
+	if autoMessagerInstance.GetMode() != boolActiveParam {
+		var action string
+		if boolActiveParam {
+			autoMessagerInstance.RecreateTicker()
+			autoMessagerInstance.Start()
+			action = "enabled"
+		} else {
+			autoMessagerInstance.Stop()
+			action = "disabled"
+		}
+
+		ctx.JSON(http.StatusOK, gin.H{
+			"message": fmt.Sprintf("auto messager %s", action),
+		})
+
+		return
+	} else {
+		ctx.JSON(http.StatusOK, gin.H{
+			"error": "mode not changed",
+		})
+	}
 }
 
 func Init() {
