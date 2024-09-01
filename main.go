@@ -10,9 +10,9 @@ import (
 	"github.com/joho/godotenv"
 )
 
-// @title           Swagger Example API
+// @title           Auto Messaging API
 // @version         1.0
-// @description     This is a sample server celler server.
+// @description     "Auto Messaging Application Web Server."
 // @termsOfService  http://swagger.io/terms/
 
 // @contact.name   API Support
@@ -31,8 +31,8 @@ import (
 // @externalDocs.url          https://swagger.io/resources/open-api/
 func main() {
 	// programmatically set swagger info
-	docs.SwaggerInfo.Title = "Swagger Example API"
-	docs.SwaggerInfo.Description = "This is a sample server Petstore server."
+	docs.SwaggerInfo.Title = "Auto Messaging API"
+	docs.SwaggerInfo.Description = "Auto Messaging Application Web Server."
 	docs.SwaggerInfo.Version = "1.0"
 	docs.SwaggerInfo.Host = "localhost:8080"
 	docs.SwaggerInfo.BasePath = "/"

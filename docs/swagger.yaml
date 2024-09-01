@@ -37,13 +37,13 @@ definitions:
       id:
         type: integer
       status:
-        $ref: '#/definitions/entity.StatusType'
+        $ref: '#/definitions/entity.MessageStatusType'
       to:
         type: string
       updated_at:
         type: string
     type: object
-  entity.StatusType:
+  entity.MessageStatusType:
     enum:
     - 0
     - 1
@@ -60,12 +60,12 @@ info:
     email: support@swagger.io
     name: API Support
     url: http://www.swagger.io/support
-  description: This is a sample server celler server.
+  description: '"Auto Messaging Application Web Server."'
   license:
     name: Apache 2.0
     url: http://www.apache.org/licenses/LICENSE-2.0.html
   termsOfService: http://swagger.io/terms/
-  title: Swagger Example API
+  title: Auto Messaging API
   version: "1.0"
 paths:
   /api/v1/message/get-sent-messages:

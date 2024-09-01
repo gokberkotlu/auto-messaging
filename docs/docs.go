@@ -155,7 +155,7 @@ const docTemplate = `{
                     "type": "integer"
                 },
                 "status": {
-                    "$ref": "#/definitions/entity.StatusType"
+                    "$ref": "#/definitions/entity.MessageStatusType"
                 },
                 "to": {
                     "type": "string"
@@ -165,7 +165,7 @@ const docTemplate = `{
                 }
             }
         },
-        "entity.StatusType": {
+        "entity.MessageStatusType": {
             "type": "integer",
             "enum": [
                 0,
@@ -194,8 +194,8 @@ var SwaggerInfo = &swag.Spec{
 	Host:             "localhost:8080",
 	BasePath:         "/api/v1",
 	Schemes:          []string{},
-	Title:            "Swagger Example API",
-	Description:      "This is a sample server celler server.",
+	Title:            "Auto Messaging API",
+	Description:      "\"Auto Messaging Application Web Server.\"",
 	InfoInstanceName: "swagger",
 	SwaggerTemplate:  docTemplate,
 	LeftDelim:        "{{",
