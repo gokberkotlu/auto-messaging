@@ -37,7 +37,8 @@ func NewMessageController() IMessageController {
 // @Router       /api/v1/message/switch-auto-messaging-mode/{active} [get]
 func (controller *messageController) SwitchAutoMessagingMode(ctx *gin.Context) {
 	automessager := automessager.GetAutoMessager()
-	automessager.Switch(controller.service, ctx)
+	status, res := automessager.Switch(controller.service, ctx)
+	ctx.JSON(status, res)
 }
 
 // ListMessage godoc

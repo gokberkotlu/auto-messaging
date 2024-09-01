@@ -16,7 +16,7 @@ import (
 type IAutoMessager interface {
 	Start()
 	Stop()
-	Switch(messageService service.IMessageService, ctx *gin.Context)
+	Switch(messageService service.IMessageService, ctx *gin.Context) (int, interface{})
 	RecreateTicker()
 	GetMode() bool
 }
@@ -87,15 +87,14 @@ func (autoMessager *AutoMessager) Stop() {
 	autoMessager.QuitCh <- struct{}{}
 }
 
-func (autoMessager *AutoMessager) Switch(messageService service.IMessageService, ctx *gin.Context) {
+func (autoMessager *AutoMessager) Switch(messageService service.IMessageService, ctx *gin.Context) (int, interface{}) {
 	activeParam := ctx.Param("active")
 	boolActiveParam, err := strconv.ParseBool(activeParam)
 	if err != nil {
-		ctx.JSON(http.StatusBadRequest, dto.ErrorResponseDTO{
+		return http.StatusBadRequest, dto.ErrorResponseDTO{
 			Status: http.StatusBadRequest,
 			Error:  "Invalid mode value. Use 'true' or 'false'.",
-		})
-		return
+		}
 	}
 
 	autoMessagerInstance := GetAutoMessager()
@@ -111,18 +110,16 @@ func (autoMessager *AutoMessager) Switch(messageService service.IMessageService,
 			action = "disabled"
 		}
 
-		ctx.JSON(http.StatusOK, dto.SuccessResponse[any]{
+		return http.StatusOK, dto.SuccessResponse[any]{
 			Status:  http.StatusOK,
 			Data:    []any{},
 			Message: fmt.Sprintf("auto messager %s", action),
-		})
-
-		return
+		}
 	} else {
-		ctx.JSON(http.StatusBadRequest, dto.ErrorResponseDTO{
+		return http.StatusBadRequest, dto.ErrorResponseDTO{
 			Status: http.StatusBadRequest,
 			Error:  "mode not changed",
-		})
+		}
 	}
 }
 
