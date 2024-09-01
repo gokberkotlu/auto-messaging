@@ -9,6 +9,7 @@ import (
 
 	"github.com/gin-gonic/gin"
 	"github.com/gokberkotlu/auto-messaging/client"
+	"github.com/gokberkotlu/auto-messaging/dto"
 	"github.com/gokberkotlu/auto-messaging/service"
 )
 
@@ -109,9 +110,10 @@ func (autoMessager *AutoMessager) Switch(messageService service.IMessageService,
 			action = "disabled"
 		}
 
-		ctx.JSON(http.StatusOK, gin.H{
-			"message": fmt.Sprintf("auto messager %s", action),
-		})
+		res := dto.SwitchResDTO{
+			Message: fmt.Sprintf("auto messager %s", action),
+		}
+		ctx.JSON(http.StatusOK, res)
 
 		return
 	} else {

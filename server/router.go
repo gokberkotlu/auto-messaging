@@ -18,13 +18,16 @@ func NewRouter() *gin.Engine {
 
 	// message endpoints
 	var messageController controller.IMessageController = controller.NewMessageController()
-	messageGroup := r.Group("message")
+	v1 := r.Group("/api/v1")
+	{
+		messages := v1.Group("message")
+		{
+			messages.GET("/switch-auto-messaging-mode/:active", messageController.SwitchAutoMessagingMode)
 
-	messageGroup.GET("/switch-auto-messaging-mode/:active", messageController.SwitchAutoMessagingMode)
+			messages.GET("/get-sent-messages", messageController.GetSentMessages)
+		}
 
-	messageGroup.GET("/get-sent-messages", func(ctx *gin.Context) {
-		ctx.JSON(http.StatusOK, messageController.GetSentMessages())
-	})
+	}
 
 	return r
 }
