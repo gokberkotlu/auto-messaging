@@ -40,7 +40,7 @@ docker-compose up -d
 go run main.go
 ```
 
-# Run Command to Update Swagger Docs
+## Run Command to Update Swagger Docs
 
 ```bash
 ./swag.sh
