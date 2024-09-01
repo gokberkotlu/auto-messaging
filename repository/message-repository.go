@@ -53,7 +53,7 @@ func (repository *MessageRepository) GetNextTwoUnsentMessages() []entity.Message
 func (repository *MessageRepository) GetSentMessages() []entity.Message {
 	var messages []entity.Message
 
-	if err := repository.db.Where("status = ?", entity.Sent).Find(&messages).Error; err != nil {
+	if err := repository.db.Where("status = ?", entity.Sent).Order("id").Find(&messages).Error; err != nil {
 		log.Fatalf(`"get sent messages" query failed: %v`, err)
 	}
 
