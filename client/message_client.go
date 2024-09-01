@@ -18,7 +18,7 @@ import (
 
 type IMessageClient interface {
 	SendNextTwoUnsentMessages() error
-	sendMessageByExternalAPI(messageDTO dto.MessageDTO) error
+	sendMessageByExternalAPI(messageDTO dto.MessageDTO) (string, error)
 }
 
 type MessageClient struct {
@@ -41,7 +41,7 @@ func New() IMessageClient {
 	}
 }
 
-func (c *MessageClient) sendMessageByExternalAPI(messageDTO dto.MessageDTO) error {
+func (c *MessageClient) sendMessageByExternalAPI(messageDTO dto.MessageDTO) (string, error) {
 	method := "POST"
 	jsonBytes, _ := json.Marshal(messageDTO)
 	payload := string(jsonBytes)
@@ -51,7 +51,7 @@ func (c *MessageClient) sendMessageByExternalAPI(messageDTO dto.MessageDTO) erro
 
 	if err != nil {
 		fmt.Println(err)
-		return err
+		return "", err
 	}
 
 	req.Header.Add("Content-Type", "application/json")
@@ -59,16 +59,17 @@ func (c *MessageClient) sendMessageByExternalAPI(messageDTO dto.MessageDTO) erro
 
 	res, err := httpClient.Do(req)
 	if err != nil {
-		return fmt.Errorf("failed to send request to external api: %w", err)
+		return "", fmt.Errorf("failed to send request to external api: %w", err)
 	}
 	defer res.Body.Close()
 
 	body, err := io.ReadAll(res.Body)
 	if err != nil {
-		return fmt.Errorf("failed to read response from external api: %w", err)
+		return "", fmt.Errorf("failed to read response from external api: %w", err)
 	}
 	fmt.Println(string(body))
-	return nil
+	xRequestId := res.Header.Get("X-Request-Id")
+	return xRequestId, nil
 }
 
 func (c *MessageClient) SendNextTwoUnsentMessages() error {
@@ -82,15 +83,22 @@ func (c *MessageClient) SendNextTwoUnsentMessages() error {
 	if messages != nil && len(messages) > 0 {
 		for _, message := range messages {
 			fmt.Println(message.ID)
-			err = c.sendMessageByExternalAPI(dto.ToMessageDTO(message))
+			// send message data to external api
+			messageId, err := c.sendMessageByExternalAPI(dto.ToMessageDTO(message))
 			if err != nil {
 				fmt.Println(err)
 				return err
 			}
 
+			// cache message id - timestamp pair
 			ctx := context.Background()
-			redis.GetInstance().AddToHash(ctx, messageHash, fmt.Sprintf("id::%d", message.ID), strconv.FormatInt(time.Now().Unix(), 10))
+			err = redis.GetInstance().AddToHash(ctx, messageHash, messageId, strconv.FormatInt(time.Now().Unix(), 10))
+			if err != nil {
+				fmt.Println(err)
+				return err
+			}
 
+			// update message status in db
 			err = c.messageService.UpdateMessageStatusAsSent(message)
 			if err != nil {
 				fmt.Println(err)
