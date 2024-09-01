@@ -43,7 +43,9 @@ func processNotOperatedMigrations() {
 			migrationProcessRepository.Create(entity.LastStatus)
 		}
 	} else {
-		getUnprocessedItemsSlice(migrationProcess.Status)
+		for _, processItem := range getUnprocessedItemsSlice(migrationProcess.Status) {
+			processItem.Action()
+		}
 		migrationProcessRepository.Update(entity.LastStatus)
 	}
 }

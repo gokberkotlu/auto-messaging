@@ -8,7 +8,7 @@ type MigrationProcessStatusType uint8
 
 const (
 	LastStatus       MigrationProcessStatusType = 0
-	MessageBatchLoad MigrationProcessStatusType = 0
+	MessageBatchLoad MigrationProcessStatusType = LastStatus
 )
 
 type MigrationFunc func()
