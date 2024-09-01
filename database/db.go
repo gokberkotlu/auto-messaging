@@ -24,24 +24,24 @@ type dbConfig struct {
 }
 
 var (
-	DatabaseInstance *Database
+	databaseInstance *Database
 	lock             = &sync.Mutex{}
 )
 
 func GetDB() (*gorm.DB, error) {
-	if DatabaseInstance == nil {
+	if databaseInstance == nil {
 		lock.Lock()
 		defer lock.Unlock()
-		if DatabaseInstance == nil {
+		if databaseInstance == nil {
 			database, err := newDBConn()
 			if err != nil {
 				return nil, err
 			}
-			DatabaseInstance = database
+			databaseInstance = database
 		}
 	}
 
-	return DatabaseInstance.connection, nil
+	return databaseInstance.connection, nil
 }
 
 func newDBConn() (*Database, error) {

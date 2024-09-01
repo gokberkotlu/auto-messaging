@@ -2,7 +2,6 @@ package repository
 
 import (
 	"fmt"
-	"log"
 
 	"github.com/gokberkotlu/auto-messaging/database"
 	"github.com/gokberkotlu/auto-messaging/entity"
@@ -69,7 +68,7 @@ func (repository *MessageRepository) GetSentMessages() ([]entity.Message, error)
 	var messages []entity.Message
 
 	if err := repository.db.Where("status = ?", entity.Sent).Order("id").Find(&messages).Error; err != nil {
-		log.Fatalf(`"get sent messages" query failed: %v`, err)
+		return nil, fmt.Errorf(`"get sent messages" query failed: %s`, err.Error())
 	}
 
 	return messages, nil
@@ -77,7 +76,7 @@ func (repository *MessageRepository) GetSentMessages() ([]entity.Message, error)
 
 func (repository *MessageRepository) UpdateMessageStatusAsSent(message entity.Message) error {
 	if err := repository.db.Model(&message).Update("status", entity.Sent).Error; err != nil {
-		return fmt.Errorf(`"update message status as sent" query failed: %v`, err)
+		return fmt.Errorf(`"update message status as sent" query failed: %s`, err.Error())
 	}
 
 	return nil

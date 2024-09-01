@@ -1,14 +1,18 @@
 package client
 
 import (
+	"context"
 	"encoding/json"
 	"fmt"
 	"io"
 	"net/http"
 	"os"
+	"strconv"
 	"strings"
+	"time"
 
 	"github.com/gokberkotlu/auto-messaging/dto"
+	"github.com/gokberkotlu/auto-messaging/redis"
 	"github.com/gokberkotlu/auto-messaging/service"
 )
 
@@ -23,6 +27,10 @@ type MessageClient struct {
 	xInsAuthKey    string
 	messageService service.IMessageService
 }
+
+const (
+	messageHash = "message"
+)
 
 func New() IMessageClient {
 	return &MessageClient{
@@ -79,6 +87,9 @@ func (c *MessageClient) SendNextTwoUnsentMessages() error {
 				fmt.Println(err)
 				return err
 			}
+
+			ctx := context.Background()
+			redis.GetInstance().AddToHash(ctx, messageHash, fmt.Sprintf("id::%d", message.ID), strconv.FormatInt(time.Now().Unix(), 10))
 
 			err = c.messageService.UpdateMessageStatusAsSent(message)
 			if err != nil {
